@@ -224,7 +224,7 @@ F^2(\ket{\psi_{\text{GHZ}}}, \rho_p) &amp;= \bra{\psi_{\text{GHZ}}} \rho_p \ket{
 \]</span></p>
 <p>The observable that gives us the squared fidelity is: <span class="math display">\[O = \ket{\psi^+_{\text{GHZ}}} \bra{\psi^+_{\text{GHZ}}} \]</span></p>
 <p>Let’s implement the protocol step by step. We begin by importing the necessary libraries and setting the random seeds.</p>
-<div id="a09093cb" class="cell" data-execution_count="1">
+<div id="38e4bee4" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pennylane <span class="im">as</span> qml</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pennylane <span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qiskit.quantum_info <span class="im">import</span> random_clifford, Operator</span>
@@ -233,7 +233,7 @@ F^2(\ket{\psi_{\text{GHZ}}}, \rho_p) &amp;= \bra{\psi_{\text{GHZ}}} \rho_p \ket{
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>z_rng, cliff_rng <span class="op">=</span> np.random.default_rng(SEED), np.random.default_rng(SEED <span class="op">+</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We now implement the quantum device part. We first define a <code>quantum_circuit()</code> that applies a unitary <span class="math inline">\(U\)</span> to the approximate GHZ state. Note that <span class="math inline">\(\rho_p\)</span> is created from an external random parameter <code>z_error</code> as we want all our PennyLane circuits to be <strong>pure functions</strong>. A non-pure-function alternative would sample the random parameter inside the circuit.</p>
-<div id="0b928a46" class="cell" data-execution_count="2">
+<div id="32c323fb" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fl">0.7</span>  <span class="co">#noise parameter for the approximate GHZ state</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_qubits <span class="op">=</span> <span class="dv">5</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n_snapshots <span class="op">=</span> <span class="dv">1000</span></span>
@@ -270,10 +270,10 @@ Note
 U P_i U^\dagger = \pm P_j
 \]</span></p>
 <p>We can use this property to uniquely define <span class="math inline">\(U\)</span> by keeping track of which Pauli string each of the <span class="math inline">\(2n\)</span> generators of the Pauli group is mapped to. Since storing a Pauli string and its sign requires <span class="math inline">\(2n + 1\)</span> bits, we need <span class="math inline">\(2n(2n +1)\)</span> bits in total. The generators of the <span class="math inline">\(n\)</span>-qubit Pauli group are <span class="math inline">\(\{Z_0, Z_1, ..., Z_{n-1}\}\)</span> and <span class="math inline">\(\{X_0, X_1, ..., X_{n-1}\}\)</span>. In the cell below we can see which Pauli strings Qiskit maps Z and X generators to.</p>
-<div id="7e3fd5ed" class="cell" data-execution_count="3">
+<div id="f7c02bcd" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cliff <span class="op">=</span> random_clifford(num_qubits<span class="op">=</span>n_qubits, seed<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>cliff.to_dict()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>{'stabilizer': ['-IYIII', '+YYZYZ', '+XIXII', '-XYXXY', '-XIXZX'],
  'destabilizer': ['+IXIIX', '+YIYII', '+YIIXX', '+ZIZZI', '+ZYZIY']}</code></pre>
 </div>
@@ -281,7 +281,7 @@ U P_i U^\dagger = \pm P_j
 </div>
 </div>
 <p>We then proceed to populate two arrays with the <span class="math inline">\(\{U_i\}\)</span> and <span class="math inline">\(\{\hat{b}_i\}\)</span>.</p>
-<div id="30831f51" class="cell" data-execution_count="4">
+<div id="17ba6488" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>cliff_array <span class="op">=</span> []</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>b_array <span class="op">=</span> []</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_snapshots):</span>
@@ -303,7 +303,7 @@ U P_i U^\dagger = \pm P_j
 &amp;= (2^n+1) \ |\bra{\hat{b}_i} U_i \ket{\psi_\text{GHZ}^+}|^2 \ - 1
 \end{align}
 \]</span></p>
-<div id="4234bb31" class="cell" data-execution_count="5">
+<div id="0f6a4fa2" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dev_class <span class="op">=</span> qml.device(<span class="st">"default.qubit"</span>, wires<span class="op">=</span>n_qubits)                 </span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@qml.qnode</span>(dev_class)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_sqfidelity(cliff, b):</span>
@@ -352,7 +352,7 @@ U \ket \psi = \sum_b a_b \ket{b} \implies |\bra{b} U \ket{\psi_\text{GHZ}^+}|^2 
 \]</span></p></li>
 <li><p>We then sample the output bitstring <span class="math inline">\(\hat{b}_i\)</span> according to the output probability distribution of <span class="math inline">\(U\ket{\psi^+_{\text{GHZ}}}\)</span> and <span class="math inline">\(U\ket{\psi^-_{\text{GHZ}}}\)</span>.</p></li>
 </ol>
-<div id="a33736c1" class="cell" data-execution_count="6">
+<div id="7bb58a2f" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
