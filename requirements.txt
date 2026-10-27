@@ -1,0 +1,6 @@
+pennylane
+matplotlib
+ipykernel
+jupyterlab
+qiskit
+seaborn
